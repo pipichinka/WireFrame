@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsView>
 #include "bsplinemodel.h"
+#include "bsplinefield.h"
 namespace Ui {
 class BSplineWindow;
 }
@@ -18,7 +19,6 @@ public:
 protected:
     virtual void keyPressEvent(QKeyEvent * event) override;
 
-
 private slots:
 
     void on_spinBoxN_valueChanged(int arg1);
@@ -29,9 +29,18 @@ private slots:
 
     void on_normalizeButton_clicked();
 
+    void on_okButton_clicked();
+
+    void on_colorSplineButton_clicked();
+
+    void on_colorPointsButton_clicked();
+
+
+    void on_changeXYButton_clicked();
+
 private:
     Ui::BSplineWindow *ui;
-    QGraphicsView *graphicsView;
+    BSplineField *graphicsView;
     BSplineModel *model;
 };
 

@@ -7,8 +7,8 @@ BSplineModel::BSplineModel(int width, int height):
     image(new QImage(width, height, QImage::Format::Format_ARGB32)),
     points(), N(1), centerPoint(0, 0), zoomScale(1.0),
     splineColor(QColor(Qt::blue).rgba()),
-    pointsColor(QColor(Qt::black).rgba()),
-    width(width), height(height)
+    pointsColor(QColor(Qt::green).rgba()),
+    width(width), height(height), pickedPointIndex(-1)
 {
     rePaint();
 }
@@ -68,31 +68,51 @@ void BSplineModel::rePaint(){
         }
         return;
     }
-
-
-    painter.setPen(QPen(QColor(pointsColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
     // рисование линий образующих бсплайна
     QPointF prevPoint(points[0]->x(), points[0]->y());
     prevPoint -= centerPoint;//переходим в координаты центра
     prevPoint *= zoomScale;// учитываем пиближение
     prevPoint.setX(prevPoint.x() + width / 2.0); // переводим в координаты экрана
     prevPoint.setY(-prevPoint.y() + height / 2.0);// переводим в координаты экрана
-    painter.drawEllipse(prevPoint, 5.0, 5.0);
+    if (pickedPointIndex == 0){
+        int colorRed = pointsColor & 0xFF;
+        int colorBlue = (pointsColor & 0xFF00) >> 8;
+        int colorGreen = (pointsColor & 0xFF0000) >> 16 ;
+        int resultColor = (255 - colorRed) | ((255 - colorBlue) << 8) | ((255 - colorGreen) << 16) | 0xFF000000;
+        painter.setPen(QPen(QColor(resultColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+        painter.drawEllipse(prevPoint, 7.0, 7.0);
+        painter.setPen(QPen(QColor(pointsColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+    }
+    else{
+        painter.setPen(QPen(QColor(pointsColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+        painter.drawEllipse(prevPoint, 7.0, 7.0);
+    }
     if (points.size() == 1){
         if (view != nullptr){
             view->onModelChange();
         }
         return;
     }
+
     for (size_t i = 1; i < points.size(); ++i){
-       QPointF currentPoint (*points[i]);
-       currentPoint -= centerPoint;
-       currentPoint *= zoomScale;
-       currentPoint.setX(currentPoint.x() + width / 2.0);
-       currentPoint.setY(-currentPoint.y() + height / 2.0);
-       painter.drawLine(prevPoint, currentPoint);
-       painter.drawEllipse(currentPoint, 10.0, 10.0);
-       prevPoint = currentPoint;
+        QPointF currentPoint (*points[i]);
+        currentPoint -= centerPoint;
+        currentPoint *= zoomScale;
+        currentPoint.setX(currentPoint.x() + width / 2.0);
+        currentPoint.setY(-currentPoint.y() + height / 2.0);
+        painter.drawLine(prevPoint, currentPoint);
+        if (i == pickedPointIndex){
+            int colorRed = pointsColor & 0xFF;
+            int colorBlue = (pointsColor & 0xFF00) >> 8;
+            int colorGreen = (pointsColor & 0xFF0000) >> 16 ;
+            int resultColor = (255 - colorRed) | ((255 - colorBlue) << 8) | ((255 - colorGreen) << 16) | 0xFF000000;
+            painter.setPen(QPen(QColor(resultColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+        }
+        painter.drawEllipse(currentPoint, 7.0, 7.0);
+        if (i == pickedPointIndex){
+            painter.setPen(QPen(QColor(pointsColor), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+        }
+        prevPoint = currentPoint;
     }
 
 
@@ -215,7 +235,7 @@ void BSplineModel::normalize(){
 }
 
 
-void BSplineModel::addPoint(int x, int y){
+QPointF* BSplineModel::addPoint(int x, int y){
     double xCenter = (double) x - (double) width/2.0; // переводим в реальные координаты
     double yCenter = (double) -y + (double) height/2.0; // переводим в реальные координаты
     double xScale = xCenter * (1 / zoomScale); // учитываем приближение (обратное)
@@ -223,7 +243,9 @@ void BSplineModel::addPoint(int x, int y){
     double xDiff = xScale + centerPoint.x(); //добавляем координаты центра
     double yDiff = yScale + centerPoint.y(); // добавляем координаты центра
     points.emplace_back(new QPointF(xDiff, yDiff));
+    pickedPointIndex = (int) points.size() - 1;
     rePaint();
+    return points[pickedPointIndex];
 }
 
 
@@ -241,6 +263,72 @@ void BSplineModel::zoomOut(){
         rePaint();
     }
 }
+
+
+QPointF* BSplineModel::movePickedPointDirect(double x, double y){
+    if (pickedPointIndex == -1){
+        return nullptr;
+    }
+    points[pickedPointIndex]->setX(x);
+    points[pickedPointIndex]->setY(y);
+    rePaint();
+    return points[pickedPointIndex];
+}
+
+
+QPointF* BSplineModel::peekPoint(int x, int y){
+    for (size_t i = 0; i < points.size(); ++i){
+        QPointF currentPoint (*points[i]);
+        currentPoint -= centerPoint;
+        currentPoint *= zoomScale;
+        currentPoint.setX(currentPoint.x() + width / 2.0);
+        currentPoint.setY(-currentPoint.y() + height / 2.0);
+        double distanceX = (x - currentPoint.x());
+        double distanceY = (y - currentPoint.y());
+        double distance = distanceX * distanceX + distanceY* distanceY;
+        if (distance <= 49.0){
+            pickedPointIndex = (int) i;
+            //std::cout << "index " << i << std::endl;
+            rePaint();
+            return points[i];
+        }
+    }
+    pickedPointIndex = -1;
+    rePaint();
+    return nullptr;
+}
+
+
+QPointF* BSplineModel::movePickedPoint(int x, int y){
+    if (pickedPointIndex == -1){
+        return nullptr;
+    }
+    double xCenter = (double) x - (double) width/2.0; // переводим в реальные координаты
+    double yCenter = (double) -y + (double) height/2.0; // переводим в реальные координаты
+    double xScale = xCenter * (1 / zoomScale); // учитываем приближение (обратное)
+    double yScale = yCenter * (1 / zoomScale); // учитываем приближение (обратное)
+    double xDiff = xScale + centerPoint.x(); //добавляем координаты центра
+    double yDiff = yScale + centerPoint.y(); // добавляем координаты центра
+    *points[pickedPointIndex] = QPointF(xDiff, yDiff);
+    rePaint();
+    return points[pickedPointIndex];
+}
+
+
+QPointF* BSplineModel::removePickedPoint(){
+    if (pickedPointIndex == -1){
+        return nullptr;
+    }
+    points.erase(points.begin() + pickedPointIndex);
+    pickedPointIndex = points.size() - 1;
+    rePaint();
+    if (pickedPointIndex == -1){
+        return nullptr;
+    }
+    return points[pickedPointIndex];
+}
+
+
 
 //я смещаюсь на рассояние, такое чтобы оно бяло одинаковое на экране
 void BSplineModel::stepLeft(){
@@ -267,5 +355,19 @@ void BSplineModel::stepDown(){
 }
 
 
+void BSplineModel::setSize(int width, int height){
+    this->width = width;
+    this->height = height;
+    delete image;
+    image = new QImage(width, height, QImage::Format::Format_ARGB32);
+    rePaint();
+}
+
+QPointF* BSplineModel::getPickedPoint(){
+    if (pickedPointIndex == -1){
+        return nullptr;
+    }
+    return points[pickedPointIndex];
+}
 
 

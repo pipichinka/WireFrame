@@ -50,4 +50,3 @@ void MainWindow::on_actionhelp_triggered()
 {
 
 }
-

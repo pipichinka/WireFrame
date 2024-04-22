@@ -19,7 +19,7 @@ class BSplineModel
     QRgb pointsColor;
     int height;
     int width;
-
+    int pickedPointIndex;
 
     static const int STEP = 10;
 
@@ -29,8 +29,12 @@ public:
     BSplineModel(int height, int width);
     void setView(ViewInterface* view){this->view = view;}
     QImage* getImage(){return image;}
-    QPointF* getPointByCoords(int x, int y); // returns NULL if there is no point close
-    void addPoint(int x, int y);
+    QPointF* getPickedPoint();
+    QPointF* peekPoint(int x, int y); // returns NULL if there is no point close
+    QPointF* movePickedPoint(int x, int y);
+    QPointF* movePickedPointDirect(double x, double y);
+    QPointF* addPoint(int x, int y);
+    QPointF* removePickedPoint();
     void setN(int n){this->N = n; rePaint();}
     void zoomIn();
     void zoomOut();
@@ -40,7 +44,10 @@ public:
     void stepUp();
     void stepDown();
     void setSplineColor(QRgb color){splineColor = color; rePaint();}
+    QRgb getSplineColor(){return splineColor;}
     void setPointsColor(QRgb color){pointsColor = color; rePaint();}
+    QRgb getPointsColor(){return pointsColor;}
+    void setSize(int width, int height);
 };
 
 #endif // BSPLINEMODEL_H
