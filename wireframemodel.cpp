@@ -143,8 +143,12 @@ void WireFrameModel::setSplineColor(QRgb color){
 
 QPointF WireFrameModel::calcOnePointOnScreen(QGenericMatrix<1, 4, double>& point, QPainter& painter){
     Point3d afterRotation = rotaitionMatrix * point;
-    double scale = (-afterRotation(0,0)) * 0.5 + 0.5;
-    std::cout << "scale " << scale << std::endl;
+    double scale = (afterRotation(0,0)) * 0.5 + 0.5;
+    if (scale > 1){
+        scale = 1.0;
+    } else  if (scale < 0){
+        scale = 0.0;
+    }
     QRgb color = this->getSplineColor();
     int colorRed = (color & 0xFF)*scale;
     int colorBlue = ((color & 0xFF00) >> 8) * scale;
@@ -222,10 +226,10 @@ void normalize3dPoints(std::vector<std::vector<Point3d>>& bspline3DPoints, std::
     double xSize = maxX - minX;
     double ySize = maxY - minY;
     double zSize = maxZ - minZ;
-    double maxSize = std::max(xSize, std::max(ySize, zSize));
+    double maxSize = std::max(xSize, std::max(ySize, zSize)) / 2;
     double xCenter = (maxX + minX) / 2.0;
     double yCenter = (maxY + minY) / 2.0;
-    double zCenter = (maxZ + maxZ) / 2.0;
+    double zCenter = (maxZ + minZ) / 2.0;
     double centerPointData[] = {xCenter, yCenter, zCenter, 0};
     Point3d centerPoint(centerPointData);
     for (size_t i = 0; i < bspline3DPoints.size(); ++i){
@@ -315,7 +319,6 @@ void WireFrameModel::rePaint(bool isFull){
         }
         painter.drawLine(prevOnScreenPoint, startPoint);
     }
-
 
     if (view != nullptr){
         view->onModelChange();
