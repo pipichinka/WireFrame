@@ -319,6 +319,7 @@ QPointF* BSplineModel::removePickedPoint(){
     if (pickedPointIndex == -1){
         return nullptr;
     }
+    delete points[pickedPointIndex];
     points.erase(points.begin() + pickedPointIndex);
     pickedPointIndex = points.size() - 1;
     rePaint();
@@ -363,11 +364,67 @@ void BSplineModel::setSize(int width, int height){
     rePaint();
 }
 
+
 QPointF* BSplineModel::getPickedPoint(){
     if (pickedPointIndex == -1){
         return nullptr;
     }
     return points[pickedPointIndex];
+}
+
+
+std::vector<QPointF> BSplineModel::getBSplinePoints(){
+    if (points.size() < 4){
+        return std::vector<QPointF>();
+    }
+    std::vector<QPointF> bsplinePoints;
+
+    int start = 0;
+    double MsplineValues[] = {-1.0, 3.0, -3.0, 1.0,
+                              3.0, -6.0, 3.0, 0.0,
+                              -3.0, 0.0, 3.0, 0.0,
+                              1.0, 4.0, 1.0, 0.0};
+    QGenericMatrix<4, 4, double> Mspline(MsplineValues); // просто матрица из задания
+    Mspline *= (1.0 / 6.0);
+
+    double TMult = 1.0 / (double) N; // шаг с которым мы берём t в формулах
+
+    while (start < points.size() - 3){
+        double pointsValues[] = {points[start]->x(), points[start]->y(),
+                                 points[start + 1]->x(), points[start + 1]->y(),
+                                 points[start + 2]->x(), points[start + 2]->y(),
+                                 points[start + 3]->x(), points[start + 3]->y(),
+                                };
+        QGenericMatrix<2, 4, double> pointsMatrix(pointsValues); // матрица из координат
+
+        pointsMatrix = Mspline * pointsMatrix; // получили вектор точек для текущего участка
+        for (int i = 0; i < N; i++){
+            double t = (i * TMult);
+            double currentTValues[] = {
+                t * t * t,
+                t * t,
+                t,
+                1
+            };
+            QGenericMatrix<4, 1, double> currentTMatrix(currentTValues);
+            QGenericMatrix<2, 1, double> currentMatrixPoint = currentTMatrix * pointsMatrix;
+            bsplinePoints.emplace_back(currentMatrixPoint.constData()[0], currentMatrixPoint.constData()[1]);
+        }
+        if (start == points.size() - 4){//добавляем послуднюю точку
+            double t = (N * TMult);
+            double currentTValues[] = {
+                t * t * t,
+                t * t,
+                t,
+                1
+            };
+            QGenericMatrix<4, 1, double> currentTMatrix(currentTValues);
+            QGenericMatrix<2, 1, double> currentMatrixPoint = currentTMatrix * pointsMatrix;
+            bsplinePoints.emplace_back(currentMatrixPoint.constData()[0], currentMatrixPoint.constData()[1]);
+        }
+        start++;
+    }
+    return std::move(bsplinePoints);
 }
 
 

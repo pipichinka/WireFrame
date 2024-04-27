@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "bsplinewindow.h"
+#include "wireframemodel.h"
+#include "wireframefield.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -30,5 +32,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    BSplineWindow* bsplineWindow;
+    WireFrameField* graphicsView;
+    WireFrameModel* model;
 };
 #endif // MAINWINDOW_H

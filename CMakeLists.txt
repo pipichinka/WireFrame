@@ -28,6 +28,10 @@ set(PROJECT_SOURCES
         bsplinewindow.h
         bsplinewindow.cpp
         bsplinewindow.ui
+        wireframemodel.h
+        wireframemodel.cpp
+        wireframefield.h
+        wireframefield.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

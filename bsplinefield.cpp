@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QGraphicsItem>
 BSplineField::BSplineField(QWidget* parent, BSplineModel* model, QLineEdit* lineX, QLineEdit* lineY): QGraphicsView(parent), model(model), scene(new QGraphicsScene(this)), item_on_scene(nullptr),
     current_width(model->getImage()->width()), current_height(model->getImage()->height()), isMousePressed(false), lineX(lineX), lineY(lineY)
 {
@@ -11,6 +12,12 @@ BSplineField::BSplineField(QWidget* parent, BSplineModel* model, QLineEdit* line
     //this->setMaximumSize(current_width + 10, current_height + 15);
     QPixmap pic = QPixmap::fromImage(*model->getImage());
     item_on_scene = reinterpret_cast<QGraphicsItem*>(scene->addPixmap(pic));
+}
+
+
+BSplineField::~BSplineField(){
+    model->setView(nullptr);
+    delete scene;
 }
 
 

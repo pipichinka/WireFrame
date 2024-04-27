@@ -1,34 +1,30 @@
-#ifndef BSPLINEFIELD_H
-#define BSPLINEFIELD_H
+#ifndef WIREFRAMEFIELD_H
+#define WIREFRAMEFIELD_H
 
-#include <QObject>
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QLineEdit>
 #include "viewinterface.h"
-#include "bsplinemodel.h"
-class BSplineField: public QGraphicsView, public ViewInterface
+#include "wireframemodel.h"
+class WireFrameField : public QGraphicsView, ViewInterface
 {
     Q_OBJECT
 public:
-    BSplineField(QWidget* parent, BSplineModel* model, QLineEdit* lineX, QLineEdit* lineY);
-    ~BSplineField();
+    WireFrameField(QWidget* parent, WireFrameModel* model);
     virtual void onModelChange() override;
-    void updateLines();
 protected:
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
+    virtual void wheelEvent(QWheelEvent* event) override;
 private:
-    BSplineModel* model;
+    WireFrameModel* model;
     QGraphicsScene* scene;
     QGraphicsItem* item_on_scene;
     int current_width;
     int current_height;
     bool isMousePressed; // is used for moving points on screen
-    QLineEdit* lineX;
-    QLineEdit* lineY;
+    int prevMouseX;
+    int prevMouseY;
 };
 
-#endif // BSPLINEFIELD_H
+#endif // WIREFRAMEFIELD_H

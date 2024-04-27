@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>831</width>
     <height>600</height>
    </rect>
   </property>
@@ -24,6 +24,10 @@
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>resource/icon.png</normaloff>resource/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -99,13 +103,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="5">
-        <widget class="QPushButton" name="applyButton">
-         <property name="text">
-          <string>apply</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="5">
         <widget class="QPushButton" name="okButton">
          <property name="text">
@@ -139,7 +136,7 @@
        <item row="1" column="3">
         <widget class="QSpinBox" name="spinBoxM">
          <property name="minimum">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="maximum">
           <number>20</number>
@@ -223,6 +220,13 @@
        <item row="1" column="8">
         <widget class="QLineEdit" name="lineEditY"/>
        </item>
+       <item row="1" column="5">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -233,7 +237,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>831</width>
      <height>22</height>
     </rect>
    </property>

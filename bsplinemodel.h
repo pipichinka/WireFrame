@@ -25,17 +25,22 @@ class BSplineModel
 
 
     void rePaint();
+protected:
+    std::vector<QPointF> getBSplinePoints();
 public:
     BSplineModel(int height, int width);
     void setView(ViewInterface* view){this->view = view;}
     QImage* getImage(){return image;}
     QPointF* getPickedPoint();
     QPointF* peekPoint(int x, int y); // returns NULL if there is no point close
-    QPointF* movePickedPoint(int x, int y);
-    QPointF* movePickedPointDirect(double x, double y);
-    QPointF* addPoint(int x, int y);
-    QPointF* removePickedPoint();
-    void setN(int n){this->N = n; rePaint();}
+    virtual QPointF* movePickedPoint(int x, int y);
+    virtual QPointF* movePickedPointDirect(double x, double y);
+    virtual QPointF* addPoint(int x, int y);
+    virtual QPointF* removePickedPoint();
+    virtual void setN(int n){this->N = n; rePaint();}
+    int getN(){return N;}
+    virtual void setM(int m) = 0;
+    virtual void setM1(int m1) = 0;
     void zoomIn();
     void zoomOut();
     void normalize();
@@ -43,7 +48,7 @@ public:
     void stepRight();
     void stepUp();
     void stepDown();
-    void setSplineColor(QRgb color){splineColor = color; rePaint();}
+    virtual void setSplineColor(QRgb color){splineColor = color; rePaint();}
     QRgb getSplineColor(){return splineColor;}
     void setPointsColor(QRgb color){pointsColor = color; rePaint();}
     QRgb getPointsColor(){return pointsColor;}

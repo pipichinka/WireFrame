@@ -12,13 +12,15 @@ class BSplineWindow;
 class BSplineWindow : public QMainWindow
 {
     Q_OBJECT
+signals:
+    void closed();
 
 public:
-    explicit BSplineWindow(QWidget *parent = nullptr);
+    explicit BSplineWindow(BSplineModel* model, QWidget *parent = nullptr);
     ~BSplineWindow();
 protected:
     virtual void keyPressEvent(QKeyEvent * event) override;
-
+    virtual void closeEvent(QCloseEvent* event) override;
 private slots:
 
     void on_spinBoxN_valueChanged(int arg1);
@@ -37,6 +39,10 @@ private slots:
 
 
     void on_changeXYButton_clicked();
+
+    void on_spinBoxM1_valueChanged(int arg1);
+
+    void on_spinBoxM_valueChanged(int arg1);
 
 private:
     Ui::BSplineWindow *ui;

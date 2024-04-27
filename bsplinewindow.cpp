@@ -7,12 +7,12 @@
 #include <QColorDialog>
 #include <QErrorMessage>
 #include <QMessageBox>
-BSplineWindow::BSplineWindow(QWidget *parent) :
+BSplineWindow::BSplineWindow(BSplineModel* model,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::BSplineWindow)
 {
-    model = new BSplineModel(640,480);
     ui->setupUi(this);
+    this->model = model;
     graphicsView = new BSplineField(ui->centralwidget, model, ui->lineEditX, ui->lineEditY);
     graphicsView->setObjectName(QString::fromUtf8("graphicsView"));
     QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -31,13 +31,19 @@ BSplineWindow::BSplineWindow(QWidget *parent) :
     ui->verticalLayout->addWidget(graphicsView);
 
     this->clearFocus();
+
 }
 
 BSplineWindow::~BSplineWindow()
 {
-    delete ui;
     delete graphicsView;
-    delete model;
+    delete ui;
+}
+
+void BSplineWindow::closeEvent(QCloseEvent* event){
+    emit closed();
+    event->accept();
+    //QMainWindow::closeEvent(event);
 }
 
 
@@ -141,5 +147,17 @@ void BSplineWindow::on_changeXYButton_clicked()
         std::cout << "error point" << std::endl;
     }
 
+}
+
+
+void BSplineWindow::on_spinBoxM1_valueChanged(int arg1)
+{
+    model->setM1(arg1);
+}
+
+
+void BSplineWindow::on_spinBoxM_valueChanged(int arg1)
+{
+    model->setM(arg1);
 }
 
