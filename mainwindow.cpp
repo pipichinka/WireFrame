@@ -3,6 +3,8 @@
 #include "bsplinewindow.h"
 #include <QEventLoop>
 #include <iostream>
+#include <QFileDialog>
+#include "applicationconfig.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -28,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     graphicsView->setInteractive(false);
     graphicsView->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
     ui->verticalLayout_2->addWidget(graphicsView);
+    ApplicationConfig config("resource/config.cfg");
+    model->readConfig(config);
 }
 
 MainWindow::~MainWindow()
@@ -38,13 +42,29 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionopen_triggered()
 {
+    QString file = QFileDialog::getOpenFileName(
+                                this,
+                                "Select one file to open",
+                                "/home",
+                                "Config (*.cfg)");
 
+    if (file.size() == 0){
+        return;
+    }
+    ApplicationConfig config(file.toStdString());
+    model->readConfig(config);
 }
 
 
 void MainWindow::on_actionsave_triggered()
 {
-
+    QString file = QFileDialog::getSaveFileName(this, "select file to save", "/home", "Config (*.cfg)");
+    if (file.size() == 0){
+        return;
+    }
+    ApplicationConfig config;
+    model->recordDataToConfig(config);
+    config.toFile(file.toStdString());
 }
 
 
@@ -88,3 +108,42 @@ void MainWindow::on_actionhelp_triggered()
 {
 
 }
+
+
+
+
+void MainWindow::on_saveButton_clicked()
+{
+    on_actionsave_triggered();
+}
+
+
+void MainWindow::on_openButton_clicked()
+{
+    on_actionopen_triggered();
+}
+
+
+void MainWindow::on_editorButton_clicked()
+{
+    on_actioneditor_triggered();
+}
+
+
+void MainWindow::on_refreshButton_clicked()
+{
+    on_actionrefresh_triggered();
+}
+
+
+void MainWindow::on_helpButton_clicked()
+{
+    on_actionhelp_triggered();
+}
+
+
+void MainWindow::on_aboutButton_clicked()
+{
+    on_actionabout_triggered();
+}
+

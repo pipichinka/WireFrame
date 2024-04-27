@@ -30,6 +30,18 @@ private slots:
 
     void on_actionhelp_triggered();
 
+    void on_saveButton_clicked();
+
+    void on_openButton_clicked();
+
+    void on_editorButton_clicked();
+
+    void on_refreshButton_clicked();
+
+    void on_helpButton_clicked();
+
+    void on_aboutButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     BSplineWindow* bsplineWindow;

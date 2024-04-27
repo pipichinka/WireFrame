@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         wireframemodel.cpp
         wireframefield.h
         wireframefield.cpp
+        applicationconfig.h
+        applicationconfig.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

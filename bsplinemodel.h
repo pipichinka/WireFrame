@@ -7,6 +7,7 @@
 #include <QPointF>
 #include <QColor>
 #include "viewinterface.h"
+#include "applicationconfig.h"
 class BSplineModel
 {
     ViewInterface* view;
@@ -53,6 +54,8 @@ public:
     void setPointsColor(QRgb color){pointsColor = color; rePaint();}
     QRgb getPointsColor(){return pointsColor;}
     void setSize(int width, int height);
+    virtual void readConfig(const ApplicationConfig& config);
+    virtual void recordDataToConfig(ApplicationConfig& config);
 };
 
 #endif // BSPLINEMODEL_H

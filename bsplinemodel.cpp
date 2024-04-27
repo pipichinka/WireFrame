@@ -428,3 +428,29 @@ std::vector<QPointF> BSplineModel::getBSplinePoints(){
 }
 
 
+void BSplineModel::readConfig(const ApplicationConfig& config){
+    N = config.N;
+    points.clear();
+    for (size_t i = 0; i < config.points.size(); ++i){
+        points.emplace_back(new QPointF(config.points[i].x(), config.points[i].y()));
+    }
+    pointsColor = config.pointsColor;
+    splineColor = config.splineColor;
+    zoomScale = config.zoomScale;
+    centerPoint = config.centerPoint;
+    rePaint();
+}
+
+
+void BSplineModel::recordDataToConfig(ApplicationConfig &config){
+    config.N = N;
+    config.points.clear();
+    for (size_t i = 0; i < points.size(); ++i){
+        config.points.emplace_back(points[i]->x(), points[i]->y());
+    }
+    config.pointsColor = pointsColor;
+    config.splineColor = splineColor;
+    config.zoomScale = zoomScale;
+    config.centerPoint = centerPoint;
+}
+

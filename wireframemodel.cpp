@@ -83,7 +83,6 @@ QPointF* WireFrameModel::removePickedPoint(){
 
 
 void WireFrameModel::zoom(int value){
-    std::cout << "zoom in " << std::endl;
     cameraMatrix(1,1) *= 1 + ((double)value / 100.0);
     cameraMatrix(2,2) *= 1 + ((double)value / 100.0);
     rePaint(false);
@@ -326,10 +325,23 @@ void WireFrameModel::rePaint(bool isFull){
 }
 
 
+void WireFrameModel::readConfig(const ApplicationConfig &config){
+    BSplineModel::readConfig(config);
+    M = config.M;
+    M1 = config.M1;
+    rotaitionMatrix = config.rotationMatrix;
+    cameraMatrix = config.cameraMatrix;
+    rePaint(true);
+}
 
 
-
-
+void WireFrameModel::recordDataToConfig(ApplicationConfig &config){
+    BSplineModel::recordDataToConfig(config);
+    config.M = M;
+    config.M1 = M1;
+    config.rotationMatrix = rotaitionMatrix;
+    config.cameraMatrix = cameraMatrix;
+}
 
 
 
