@@ -34,6 +34,9 @@ set(PROJECT_SOURCES
         wireframefield.cpp
         applicationconfig.h
         applicationconfig.cpp
+        helpwindow.h
+        helpwindow.cpp
+        helpwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

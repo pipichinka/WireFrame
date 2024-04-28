@@ -23,6 +23,7 @@ class WireFrameModel: public BSplineModel
 
     void rePaint(bool isFull);
     QPointF calcOnePointOnScreen(QGenericMatrix<1, 4, double>& point, QPainter& painter);
+    void drawXYZ(QPainter& painter);
 public:
     WireFrameModel(int height, int width);
     void setView(ViewInterface* view){this->view = view;}

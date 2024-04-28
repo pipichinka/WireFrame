@@ -5,6 +5,8 @@
 #include <iostream>
 #include <QFileDialog>
 #include "applicationconfig.h"
+#include <QMessageBox>
+#include "helpwindow.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -51,8 +53,13 @@ void MainWindow::on_actionopen_triggered()
     if (file.size() == 0){
         return;
     }
-    ApplicationConfig config(file.toStdString());
-    model->readConfig(config);
+    try{
+        ApplicationConfig config(file.toStdString());
+        model->readConfig(config);
+    }catch (std::exception& e){
+        QMessageBox box(QMessageBox::Icon::Critical, "error", e.what(), QMessageBox::Ok, this);
+        box.exec();
+    }
 }
 
 
@@ -64,7 +71,12 @@ void MainWindow::on_actionsave_triggered()
     }
     ApplicationConfig config;
     model->recordDataToConfig(config);
-    config.toFile(file.toStdString());
+    try{
+        config.toFile(file.toStdString());
+    }catch (std::exception& e){
+        QMessageBox box(QMessageBox::Icon::Critical, "error", e.what(), QMessageBox::Ok, this);
+        box.exec();
+    }
 }
 
 
@@ -100,13 +112,23 @@ void MainWindow::on_actionrefresh_triggered()
 
 void MainWindow::on_actionabout_triggered()
 {
-
+    QMessageBox about(QMessageBox::Icon::Information, "about information",
+                      "Program WireFrame was made by Michail Sirotkin student of Novosibirk State University FIT faculty group 21203",
+                      QMessageBox::StandardButton::NoButton, this);
+    about.exec();
 }
 
 
 void MainWindow::on_actionhelp_triggered()
 {
+    HelpWindow w(this);
+    w.show();
 
+    QEventLoop loop;
+
+    connect(bsplineWindow, SIGNAL(closed()), &loop, SLOT(quit()));
+
+    loop.exec();
 }
 
 

@@ -10,8 +10,14 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>640</width>
+    <height>480</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>WireFrame</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -81,6 +87,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>save scene file</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -97,6 +106,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>open scene file</string>
          </property>
          <property name="text">
           <string/>
@@ -115,6 +127,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>bspline settings</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -131,6 +146,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>clear angle</string>
          </property>
          <property name="text">
           <string/>
@@ -149,6 +167,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>show help</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -165,6 +186,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>show about</string>
          </property>
          <property name="text">
           <string/>

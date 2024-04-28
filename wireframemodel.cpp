@@ -251,7 +251,7 @@ void normalize3dPoints(std::vector<std::vector<Point3d>>& bspline3DPoints, std::
 void WireFrameModel::rePaint(bool isFull){
     image->fill(Qt::black);
     QPainter painter(image);
-    painter.setPen(QPen(QColor(this->getSplineColor()), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+    drawXYZ(painter);
     std::vector<QPointF> bsplinePoints = this->getBSplinePoints();
     if (bsplinePoints.size() == 0){
         if (view != nullptr){
@@ -322,6 +322,56 @@ void WireFrameModel::rePaint(bool isFull){
     if (view != nullptr){
         view->onModelChange();
     }
+}
+
+void WireFrameModel::drawXYZ(QPainter& painter){
+    double xyzCameraMatrixData[] = {
+            1, 0, 0, 0,
+            0, 200, 0, 0,
+            0, 0, 200, 0,
+            1, 0, 0, 10
+    };
+    QGenericMatrix<4,4,double> xyzCameraMatrix(xyzCameraMatrixData);
+    double centerPointData[] = {0, 0, 0, 1};
+    double xPointData[] = {1, 0, 0, 1};
+    double yPointData[] = {0, 1, 0, 1};
+    double zPointData[] = {0, 0, 1, 1};
+    Point3d centerPoint(centerPointData);
+    Point3d xPoint(xPointData);
+    Point3d yPoint(yPointData);
+    Point3d zPoint(zPointData);
+    Point3d centerPointOnScreenMatrix(xyzCameraMatrix * (rotaitionMatrix * centerPoint));
+    Point3d xPointOnScreenMatrix(xyzCameraMatrix * (rotaitionMatrix * xPoint));
+    Point3d yPointOnScreenMatrix(xyzCameraMatrix * (rotaitionMatrix * yPoint));
+    Point3d zPointOnScreenMatrix(xyzCameraMatrix * (rotaitionMatrix * zPoint));
+    QPointF centerPointOnScreen(centerPointOnScreenMatrix.constData()[1] / centerPointOnScreenMatrix.constData()[3],
+            centerPointOnScreenMatrix.constData()[2] / centerPointOnScreenMatrix.constData()[3]);
+    centerPointOnScreen.setX(centerPointOnScreen.x() + 20);
+    centerPointOnScreen.setY( -centerPointOnScreen.y() + 20);
+
+    QPointF xPointOnScreen(xPointOnScreenMatrix.constData()[1] / xPointOnScreenMatrix.constData()[3],
+            xPointOnScreenMatrix.constData()[2] / xPointOnScreenMatrix.constData()[3]);
+    xPointOnScreen.setX(xPointOnScreen.x() + 20);
+    xPointOnScreen.setY( -xPointOnScreen.y() + 20);
+
+    QPointF yPointOnScreen(yPointOnScreenMatrix.constData()[1] / yPointOnScreenMatrix.constData()[3],
+            yPointOnScreenMatrix.constData()[2] / yPointOnScreenMatrix.constData()[3]);
+    yPointOnScreen.setX(yPointOnScreen.x() + 20);
+    yPointOnScreen.setY( -yPointOnScreen.y() + 20);
+
+    QPointF zPointOnScreen(zPointOnScreenMatrix.constData()[1] / zPointOnScreenMatrix.constData()[3],
+            zPointOnScreenMatrix.constData()[2] / zPointOnScreenMatrix.constData()[3]);
+    zPointOnScreen.setX(zPointOnScreen.x() + 20);
+    zPointOnScreen.setY( -zPointOnScreen.y() + 20);
+
+    painter.setPen(QPen(QColor(Qt::green), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+    painter.drawLine(centerPointOnScreen, xPointOnScreen);
+
+    painter.setPen(QPen(QColor(Qt::yellow), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+    painter.drawLine(centerPointOnScreen, yPointOnScreen);
+
+    painter.setPen(QPen(QColor(Qt::red), 1, Qt::PenStyle::SolidLine, Qt::PenCapStyle::RoundCap, Qt::PenJoinStyle::RoundJoin));
+    painter.drawLine(centerPointOnScreen, zPointOnScreen);
 }
 
 
