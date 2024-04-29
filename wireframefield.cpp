@@ -3,7 +3,7 @@
 #include <iostream>
 #include <QMouseEvent>
 #include <QScrollBar>
-
+#include <QGraphicsItem>
 WireFrameField::WireFrameField(QWidget* parent, WireFrameModel* model):
     QGraphicsView(parent), model(model), scene(new QGraphicsScene(this)), item_on_scene(nullptr),
         current_width(model->getImage()->width()), current_height(model->getImage()->height()), isMousePressed(false)
@@ -59,6 +59,7 @@ void WireFrameField::onModelChange(){
         scene->setSceneRect(0,0, current_width + 2, current_height + 2);
     }
     scene->removeItem(item_on_scene);
+    delete item_on_scene;
     QPixmap pic = QPixmap::fromImage(*model->getImage());
     item_on_scene = reinterpret_cast<QGraphicsItem*>(scene->addPixmap(pic));
 }

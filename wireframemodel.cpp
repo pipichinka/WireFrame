@@ -38,13 +38,13 @@ void WireFrameModel::setN(int n){
 
 void WireFrameModel::setM(int m){
     this->M = m;
-    rePaint(false);
+    rePaint(true);
 }
 
 
 void WireFrameModel::setM1(int m1){
     this->M1 = m1;
-    rePaint(false);
+    rePaint(true);
 }
 
 
@@ -142,7 +142,7 @@ void WireFrameModel::setSplineColor(QRgb color){
 
 QPointF WireFrameModel::calcOnePointOnScreen(QGenericMatrix<1, 4, double>& point, QPainter& painter){
     Point3d afterRotation = rotaitionMatrix * point;
-    double scale = (afterRotation(0,0)) * 0.5 + 0.5;
+    double scale = (afterRotation(0,0)) * 0.35 + 0.65;
     if (scale > 1){
         scale = 1.0;
     } else  if (scale < 0){
@@ -252,52 +252,51 @@ void WireFrameModel::rePaint(bool isFull){
     image->fill(Qt::black);
     QPainter painter(image);
     drawXYZ(painter);
-    std::vector<QPointF> bsplinePoints = this->getBSplinePoints();
-    if (bsplinePoints.size() == 0){
-        if (view != nullptr){
-            view->onModelChange();
+    if (isFull){
+        bspline3DPoints.clear();
+        circles.clear();
+        std::vector<QPointF> bsplinePoints = this->getBSplinePoints();
+        if (bsplinePoints.size() == 0){
+            if (view != nullptr){
+                view->onModelChange();
+            }
+            return;
         }
-        return;
-    }
 
-    //строим 3д каркас из бсплайнов
-    std::vector<std::vector<Point3d>> bspline3DPoints;
-    double MEngle = (M_PI * 2) / (M);
-    for (int i = 0; i < M; ++i){
-        double currentEngle = MEngle * i;
-        double currentSin = sin(currentEngle);
-        double currentCos = cos(currentEngle);
-        std::vector<Point3d> currentPoints;
-        for (size_t j = 0; j < bsplinePoints.size(); ++j){
-            double x = bsplinePoints[j].y() * currentCos; //мы крутим в 2д координатах воокруг x, но при реобразовании
-            double y = bsplinePoints[j].y() * currentSin; // в 3д мы считаем, что х стал z, а х и у крутятся вокруг него
-            double vector[] = {x, y, bsplinePoints[j].x(), 1}; // собираем 4-вектор
-            currentPoints.emplace_back(vector);
-        }
-        bspline3DPoints.emplace_back(currentPoints);
-    }
-
-    //строим груги
-    std::vector<std::vector<Point3d>> circles;
-    double M1Engle = (M_PI * 2) / (M * M1);
-    for (int i = 0; i < bspline3DPoints[0].size(); i += this->getN()){
-        QPointF currentPoint = bsplinePoints[i];
-        std::vector<Point3d> currentPoints;
-        for (int j = 0; j < M * M1; ++j){
-            double currentEngle = M1Engle * j;
+        //строим 3д каркас из бсплайнов
+        double MEngle = (M_PI * 2) / (M);
+        for (int i = 0; i < M; ++i){
+            double currentEngle = MEngle * i;
             double currentSin = sin(currentEngle);
             double currentCos = cos(currentEngle);
-            double x = currentPoint.y() * currentCos; //мы крутим в 2д координатах воокруг x, но при реобразовании
-            double y = currentPoint.y() * currentSin; // в 3д мы считаем, что х стал z, а х и у крутятся вокруг него
-            double vector[] = {x, y, currentPoint.x(), 1}; // собираем 4-вектор
-            currentPoints.emplace_back(vector);
+            std::vector<Point3d> currentPoints;
+            for (size_t j = 0; j < bsplinePoints.size(); ++j){
+                double x = bsplinePoints[j].y() * currentCos; //мы крутим в 2д координатах воокруг x, но при реобразовании
+                double y = bsplinePoints[j].y() * currentSin; // в 3д мы считаем, что х стал z, а х и у крутятся вокруг него
+                double vector[] = {x, y, bsplinePoints[j].x(), 1}; // собираем 4-вектор
+                currentPoints.emplace_back(vector);
+            }
+            bspline3DPoints.emplace_back(currentPoints);
         }
-        circles.emplace_back(currentPoints);
+
+        //строим груги
+        double M1Engle = (M_PI * 2) / (M * M1);
+        for (int i = 0; i < bspline3DPoints[0].size(); i += this->getN()){
+            QPointF currentPoint = bsplinePoints[i];
+            std::vector<Point3d> currentPoints;
+            for (int j = 0; j < M * M1; ++j){
+                double currentEngle = M1Engle * j;
+                double currentSin = sin(currentEngle);
+                double currentCos = cos(currentEngle);
+                double x = currentPoint.y() * currentCos; //мы крутим в 2д координатах воокруг x, но при реобразовании
+                double y = currentPoint.y() * currentSin; // в 3д мы считаем, что х стал z, а х и у крутятся вокруг него
+                double vector[] = {x, y, currentPoint.x(), 1}; // собираем 4-вектор
+                currentPoints.emplace_back(vector);
+            }
+            circles.emplace_back(currentPoints);
+        }
+        normalize3dPoints(bspline3DPoints, circles);//вписывание фигуры в единичный крвадрат
     }
-
-
-    normalize3dPoints(bspline3DPoints, circles);//вписывание фигуры в единичный крвадрат
-
 
     //дальше банально рисуем всё на экран
     for (size_t i = 0; i < bspline3DPoints.size(); ++i){

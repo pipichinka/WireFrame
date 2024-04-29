@@ -20,6 +20,9 @@ class WireFrameModel: public BSplineModel
     QGenericMatrix<4,4, double> rotaitionMatrix;
     QGenericMatrix<4,4, double> cameraMatrix;
 
+    std::vector<std::vector<Point3d>> bspline3DPoints;
+    std::vector<std::vector<Point3d>> circles;
+
 
     void rePaint(bool isFull);
     QPointF calcOnePointOnScreen(QGenericMatrix<1, 4, double>& point, QPainter& painter);
