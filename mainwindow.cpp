@@ -7,15 +7,18 @@
 #include "applicationconfig.h"
 #include <QMessageBox>
 #include "helpwindow.h"
+#include <QKeyEvent>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , bsplineWindow(nullptr)
     , graphicsView(nullptr)
-    , model(new WireFrameModel(640, 480))
 
 {
     ui->setupUi(this);
+    RenderConfig render("resource/StandfordBunny.render");
+    SceneConfig scene("resource/StandfordBunny.scene");
+    model = new WireFrameRModel(400, 400, render, scene);
     graphicsView = new WireFrameField(ui->centralwidget, model);
     graphicsView->setObjectName(QString::fromUtf8("graphicsView"));
     QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -32,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
     graphicsView->setInteractive(false);
     graphicsView->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
     ui->verticalLayout_2->addWidget(graphicsView);
-    ApplicationConfig config("resource/config.cfg");
-    model->readConfig(config);
 }
 
 MainWindow::~MainWindow()
@@ -42,55 +43,108 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::keyPressEvent(QKeyEvent * event){
+    switch (event->key()) {
+        case Qt::Key_W:{
+            model->stepForward();
+            break;
+        }
+        case Qt::Key_S:{
+            model->stepBack();
+            break;
+        }
+        case Qt::Key_A:{
+            model->stepLeft();
+            break;
+        }
+        case Qt::Key_D:{
+            model->stepRight();
+            break;
+        }
+
+    }
+}
+
+
 void MainWindow::on_actionopen_triggered()
 {
     QString file = QFileDialog::getOpenFileName(
                                 this,
-                                "Select one file to open",
+                                "Select scene file to open",
                                 "/home",
-                                "Config (*.cfg)");
+                                "Config (*.scene)");
 
     if (file.size() == 0){
         return;
+
     }
-    try{
-        ApplicationConfig config(file.toStdString());
-        model->readConfig(config);
-    }catch (std::exception& e){
-        QMessageBox box(QMessageBox::Icon::Critical, "error", e.what(), QMessageBox::Ok, this);
-        box.exec();
+    SceneConfig scene(file.toStdString());
+    file = QFileDialog::getOpenFileName(
+                                this,
+                                "Select render file to open",
+                                "/home",
+                                "Config (*.render)");
+
+    if (file.size() == 0){
+        return;
+
     }
+    RenderConfig render(file.toStdString());
+    model->setConfigs(render, scene);
 }
 
 
 void MainWindow::on_actionsave_triggered()
 {
-    QString file = QFileDialog::getSaveFileName(this, "select file to save", "/home", "Config (*.cfg)");
-    if (file.size() == 0){
-        return;
-    }
-    ApplicationConfig config;
-    model->recordDataToConfig(config);
-    try{
-        config.toFile(file.toStdString());
-    }catch (std::exception& e){
-        QMessageBox box(QMessageBox::Icon::Critical, "error", e.what(), QMessageBox::Ok, this);
-        box.exec();
-    }
+//    QString file = QFileDialog::getSaveFileName(this, "select file to save", "/home", "Config (*.cfg)");
+//    if (file.size() == 0){
+//        return;
+//    }
+//    ApplicationConfig config;
+//    model->recordDataToConfig(config);
+//    try{
+//        config.toFile(file.toStdString());
+//    }catch (std::exception& e){
+//        QMessageBox box(QMessageBox::Icon::Critical, "error", e.what(), QMessageBox::Ok, this);
+//        box.exec();
+//    }
+}
+
+
+struct threadArgs{
+    QImage* q;
+    WireFrameRModel* model;
+    QProgressBar* bar;
+};
+
+
+void* start_routine(void * args){
+    threadArgs* arg = reinterpret_cast<threadArgs*>(args);
+    pthread_detach(pthread_self());
+    arg->model->calcReyTracing(arg->q, arg->bar);
+    delete arg;
+    return NULL;
 }
 
 
 void MainWindow::on_actioneditor_triggered()
 {
     if (bsplineWindow == nullptr){
-        bsplineWindow = new BSplineWindow(model,this);
+        QImage* q = new QImage(600, 600, QImage::Format::Format_ARGB32);
+        pthread_t tid;
+        threadArgs* args = new threadArgs;
+        args->q = q;
+        args->model = model;
+        bsplineWindow = new BSplineWindow(q,this);
+        args->bar = bsplineWindow->getProgressBar();
+        pthread_create(&tid, NULL, start_routine, args);
+        bsplineWindow->show();
     }
     else {
         bsplineWindow->activateWindow();
         bsplineWindow->raise();
         return;
     }
-    bsplineWindow->show();
 
     QEventLoop loop;
 
@@ -106,14 +160,14 @@ void MainWindow::on_actioneditor_triggered()
 
 void MainWindow::on_actionrefresh_triggered()
 {
-    model->clearAngle();
+    //model->clearAngle();
 }
 
 
 void MainWindow::on_actionabout_triggered()
 {
     QMessageBox about(QMessageBox::Icon::Information, "about information",
-                      "Program WireFrame was made by Michail Sirotkin student of Novosibirk State University FIT faculty group 21203",
+                      "Program RayTracing was made by Michail Sirotkin student of Novosibirk State University FIT faculty group 21203",
                       QMessageBox::StandardButton::NoButton, this);
     about.exec();
 }

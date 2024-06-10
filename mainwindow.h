@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "bsplinewindow.h"
-#include "wireframemodel.h"
+#include "wireframermodel.h"
 #include "wireframefield.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -12,6 +12,9 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+protected:
+    virtual void keyPressEvent(QKeyEvent * event) override;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -46,6 +49,6 @@ private:
     Ui::MainWindow *ui;
     BSplineWindow* bsplineWindow;
     WireFrameField* graphicsView;
-    WireFrameModel* model;
+    WireFrameRModel* model;
 };
 #endif // MAINWINDOW_H

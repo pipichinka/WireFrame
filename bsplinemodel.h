@@ -40,6 +40,8 @@ public:
     virtual QPointF* removePickedPoint();
     virtual void setN(int n){this->N = n; rePaint();}
     int getN(){return N;}
+    virtual int getM() = 0;
+    virtual int getM1() = 0;
     virtual void setM(int m) = 0;
     virtual void setM1(int m1) = 0;
     void zoomIn();

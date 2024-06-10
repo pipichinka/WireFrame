@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QGraphicsView>
+#include <QProgressBar>
 #include "bsplinemodel.h"
 #include "bsplinefield.h"
+#include "pthread.h"
 namespace Ui {
 class BSplineWindow;
 }
@@ -16,38 +18,18 @@ signals:
     void closed();
 
 public:
-    explicit BSplineWindow(BSplineModel* model, QWidget *parent = nullptr);
+    explicit BSplineWindow(QImage* image, QWidget *parent = nullptr);
+    QProgressBar* getProgressBar();
+    void updateImage();
     ~BSplineWindow();
 protected:
-    virtual void keyPressEvent(QKeyEvent * event) override;
     virtual void closeEvent(QCloseEvent* event) override;
 private slots:
-
-    void on_spinBoxN_valueChanged(int arg1);
-
-    void on_zoomInButton_clicked();
-
-    void on_zoomOutButton_clicked();
-
-    void on_normalizeButton_clicked();
-
-    void on_okButton_clicked();
-
-    void on_colorSplineButton_clicked();
-
-    void on_colorPointsButton_clicked();
-
-
-    void on_changeXYButton_clicked();
-
-    void on_spinBoxM1_valueChanged(int arg1);
-
-    void on_spinBoxM_valueChanged(int arg1);
+    void on_progressBar_valueChanged(int value);
 
 private:
     Ui::BSplineWindow *ui;
     BSplineField *graphicsView;
-    BSplineModel *model;
 };
 
 #endif // BSPLINEWINDOW_H

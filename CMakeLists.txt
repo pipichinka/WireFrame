@@ -14,6 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -37,6 +42,17 @@ set(PROJECT_SOURCES
         helpwindow.h
         helpwindow.cpp
         helpwindow.ui
+        wireframermodel.h
+        wireframermodel.cpp
+        lightsource.h
+        lightsource.cpp
+        camera.h
+        camera.cpp
+        sphere.h sphere.cpp
+        triangle.h triangle.cpp
+        box.h box.cpp
+        quadrangle.h quadrangle.cpp
+        SceneObjectInterface.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -62,7 +78,8 @@ else()
     endif()
 endif()
 
-target_link_libraries(WireFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+SET(GXX_COVERAGE_COMPILE_FLAGS "-O3")
+target_link_libraries(WireFrame PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Threads::Threads)
 
 set_target_properties(WireFrame PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

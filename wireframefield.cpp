@@ -4,7 +4,7 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QGraphicsItem>
-WireFrameField::WireFrameField(QWidget* parent, WireFrameModel* model):
+WireFrameField::WireFrameField(QWidget* parent, WireFrameRModel* model):
     QGraphicsView(parent), model(model), scene(new QGraphicsScene(this)), item_on_scene(nullptr),
         current_width(model->getImage()->width()), current_height(model->getImage()->height()), isMousePressed(false)
 {
@@ -42,7 +42,7 @@ void WireFrameField::mouseMoveEvent(QMouseEvent *event){
     if (isMousePressed){
         int posX = event->x() + this->horizontalScrollBar()->value();
         int posY = event->y() + this->verticalScrollBar()->value();
-        model->moveEngleByMouse(posX - prevMouseX, posY - prevMouseY);
+        model->moveEngleByMouse(-posX + prevMouseX, -posY + prevMouseY);
         prevMouseX = posX;
         prevMouseY = posY;
     }
@@ -66,7 +66,7 @@ void WireFrameField::onModelChange(){
 
 
 void WireFrameField::resizeEvent(QResizeEvent *event){
-    model->setSize(event->size().width() - 2, event->size().height() - 2);
+    model->setSize(event->size().height() - 2, event->size().width() - 2);
 }
 
 

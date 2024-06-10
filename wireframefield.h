@@ -3,12 +3,12 @@
 
 #include <QGraphicsView>
 #include "viewinterface.h"
-#include "wireframemodel.h"
+#include "wireframermodel.h"
 class WireFrameField : public QGraphicsView, ViewInterface
 {
     Q_OBJECT
 public:
-    WireFrameField(QWidget* parent, WireFrameModel* model);
+    WireFrameField(QWidget* parent, WireFrameRModel* model);
     virtual void onModelChange() override;
 protected:
     virtual void mousePressEvent(QMouseEvent *event) override;
@@ -17,7 +17,7 @@ protected:
     virtual void resizeEvent(QResizeEvent* event) override;
     virtual void wheelEvent(QWheelEvent* event) override;
 private:
-    WireFrameModel* model;
+    WireFrameRModel* model;
     QGraphicsScene* scene;
     QGraphicsItem* item_on_scene;
     int current_width;

@@ -5,7 +5,6 @@
 #include <QGenericMatrix>
 
 
-typedef QGenericMatrix<1, 4, double> Point3d;
 
 
 class WireFrameModel: public BSplineModel
@@ -36,6 +35,8 @@ public:
     virtual QPointF* addPoint(int x, int y) override;
     virtual QPointF* removePickedPoint() override;
     virtual void setN(int n) override;
+    virtual int getM()override{ return M;}
+    virtual int getM1()override{ return M1;}
     virtual void setM(int m) override;
     virtual void setM1(int m1) override;
     void zoom(int value);

@@ -89,38 +89,16 @@ void WireFrameModel::zoom(int value){
 }
 
 
-QGenericMatrix<4, 4, double> makeRotationMatrix(bool isX, double phi){
-    double sinPhi = sin(phi);
-    double cosPhi = cos(phi);
-    if (isX){
-        double matrixData[] =
-        {1, 0, 0, 0,
-         0, cosPhi, -sinPhi, 0,
-         0, sinPhi, cosPhi, 0,
-         0, 0, 0, 1};
-        return QGenericMatrix<4, 4, double>(matrixData);
-    }
-    else {//y
-        double matrixData[] =
-        {cosPhi, 0, sinPhi, 0,
-        0, 1, 0, 0,
-        -sinPhi, 0, cosPhi, 0,
-        0,0,0,1};
-        return QGenericMatrix<4, 4, double>(matrixData);
-    }
-}
-
-
 void WireFrameModel::moveEngleByMouse(int x, int y){
-    if (x != 0){
-        double phiX = ((M_PI) / 100.0) * x;
-        rotaitionMatrix = makeRotationMatrix(true, phiX) * rotaitionMatrix;
-    }
-    if (y != 0){
-        double phiY = ((M_PI) / 100.0) * y;
-        rotaitionMatrix = makeRotationMatrix(false, phiY) * rotaitionMatrix;
-    }
-    rePaint(false);
+//    if (x != 0){
+//        double phiX = ((M_PI) / 100.0) * x;
+//        rotaitionMatrix = makeRotationMatrix(true, phiX) * rotaitionMatrix;
+//    }
+//    if (y != 0){
+//        double phiY = ((M_PI) / 100.0) * y;
+//        rotaitionMatrix = makeRotationMatrix(false, phiY) * rotaitionMatrix;
+//    }
+//    rePaint(false);
 }
 
 
@@ -142,7 +120,7 @@ void WireFrameModel::setSplineColor(QRgb color){
 
 QPointF WireFrameModel::calcOnePointOnScreen(QGenericMatrix<1, 4, double>& point, QPainter& painter){
     Point3d afterRotation = rotaitionMatrix * point;
-    double scale = (afterRotation(0,0)) * 0.35 + 0.65;
+    double scale = (-afterRotation(0,0)) * 0.35 + 0.65;
     if (scale > 1){
         scale = 1.0;
     } else  if (scale < 0){
